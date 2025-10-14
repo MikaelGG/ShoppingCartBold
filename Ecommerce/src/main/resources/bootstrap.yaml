@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: Ecommerce
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8888
