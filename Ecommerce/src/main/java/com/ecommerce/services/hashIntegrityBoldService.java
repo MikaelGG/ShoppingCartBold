@@ -1,14 +1,16 @@
 package com.ecommerce.services;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+@Service
 public class hashIntegrityBoldService {
 
-    @Value("secretKey")
+    @Value("${secretKey}")
     private String secretKey;
 
     public String generateIntegrityHash(String idInternal, Long amount, String currency) {

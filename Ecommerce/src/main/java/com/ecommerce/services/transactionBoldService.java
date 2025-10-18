@@ -21,7 +21,7 @@ public class transactionBoldService {
     @Autowired
     transactionBoldRepository transactionBoldRepository;
 
-    @Value("apiKey")
+    @Value("${apiKey}")
     private String apiKey;
 
     @Transactional
