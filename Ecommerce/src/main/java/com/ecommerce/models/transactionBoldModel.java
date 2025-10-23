@@ -1,11 +1,10 @@
 package com.ecommerce.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,7 +39,25 @@ public class transactionBoldModel {
     @Column(name = "id_address")
     private Long idAddress;
 
-    @Column(name = "create_at")
-    private LocalDateTime createAt;
+    @Column(name = "products", columnDefinition = "JSON", updatable = false)
+    private String products;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "shipping_status")
+    private ShippingStatus shippingStatus = ShippingStatus.PROCESO_ENVIO;
+
+    @CreationTimestamp
+    @Column(name = "create_at", updatable = false)
+    private Timestamp createAt;
+
+    public enum ShippingStatus {
+        PROCESO_ENVIO,
+        ENVIADO,
+        ENTREGADO,
+        PAGO_PENDIENTE,
+        PROCESANDO_PAGO,
+        PAGO_RECHAZADO,
+        PAGO_CANCELADO
+    }
 
 }

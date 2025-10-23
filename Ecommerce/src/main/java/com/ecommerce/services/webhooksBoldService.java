@@ -29,32 +29,43 @@ public class webhooksBoldService {
     transactionBoldRepository transactionBoldRepository;
 
     @Transactional
-    public String handleWebhook(HttpServletRequest request) throws IOException {
+    public String handleWebhook(String payload) throws IOException {
 
-        String payload = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        String signature = request.getHeader("X-Bold-Signature");
-
-        String expectedSignature = hmacSHA256(payload, webhookSecret);
+        /*String expectedSignature = hmacSHA256(payload, webhookSecret);
         if (!expectedSignature.equalsIgnoreCase(signature)) {
             log.info("⚠️ Firma inválida");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid signature");
-        }
+        }*/
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json = mapper.readTree(payload);
         String type = json.path("type").asText();
         JsonNode data = json.path("data");
 
-        String reference = data.path("reference").asText();
-        String idPayment = data.path("id").asText();
+        JsonNode metadata = data.path("metadata");
+        String reference = metadata.path("reference").asText();
+        String idPayment = json.path("id").asText();
         String status = mapBoldStatus(type);
         Long amount = data.path("amount").asLong();
+
+        log.info("json map", json);
 
         transactionBoldModel transaction = transactionBoldRepository.findByIdInternal(reference).orElse(null);
         if (transaction != null) {
             transaction.setStatus(status);
             transaction.setRawPayload(payload);
             transaction.setIdBoldOrder(idPayment);
+
+            if (status.toLowerCase().equals("approved")) {
+                transaction.setShippingStatus(transactionBoldModel.ShippingStatus.PROCESO_ENVIO);
+            } else if (status.toLowerCase().equals("pending")) {
+                transaction.setShippingStatus(transactionBoldModel.ShippingStatus.PAGO_PENDIENTE);
+            } else if (status.toLowerCase().equals("rejected")) {
+                transaction.setShippingStatus(transactionBoldModel.ShippingStatus.PAGO_RECHAZADO);
+            } else if (status.toLowerCase().equals("declined")) {
+                transaction.setShippingStatus(transactionBoldModel.ShippingStatus.PAGO_CANCELADO);
+            }
+
             transactionBoldRepository.save(transaction);
         }
 
@@ -78,8 +89,9 @@ public class webhooksBoldService {
     private String mapBoldStatus(String type) {
         return switch (type) {
             case "SALE_APPROVED" -> "APPROVED";
-            case "SALE_DECLINED" -> "REJECTED";
             case "SALE_PENDING" -> "PENDING";
+            case "SALE_DECLINED" -> "DECLINED";
+            case "SALE_REJECTED" -> "REJECTED";
             default -> "UNKNOWN";
         };
     }
