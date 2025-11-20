@@ -5,14 +5,14 @@ spring:
         webmvc:
           routes:
             - id: Users
-              uri: http://localhost:8081
+              uri: http://ms-users:8081
               predicates:
                 - Path= /api/users/**, /api/user-types/**, /auth/**
             - id: Products
-              uri: http://localhost:8082
+              uri: http://ms-products:8082
               predicates:
                 - Path= /api/product-types/**, /api/products/**
             - id: Ecommerce
-              uri: http://localhost:8083
+              uri: http://ms-ecommerce:8083
               predicates:
                 - Path= /api/shipping-addresses/**, /api/invoices/**, /api/transactions/**, /api/webhooks/bold/**
