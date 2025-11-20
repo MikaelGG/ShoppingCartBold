@@ -6,9 +6,9 @@ server:
     include-stacktrace: NEVER
 spring:
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/PDBECOMMERCE
-    username: ECOMMERCEUSER
-    password: 'ECOMMERCEPASS'
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}  
   jpa:
     show-sql: true
     hibernate:
